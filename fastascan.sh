@@ -7,7 +7,9 @@ if [[ -z $2 ]]; then
 	nlines=0
 else nlines=$2
 fi
+
 #Finding all the fasta files, and counting the number of files and unique IDs. 
+
 files=$(find $folder -type f -name "*.fasta" -or -name "*.fa")
 if [[ $(echo "$files" | wc -l) -eq 1 ]]; then
 	if [[ $(awk -F' ' '/^>/{print $1}' $files | sort | uniq | wc -l) -eq 1 ]]; then 
@@ -19,7 +21,9 @@ else if [[ $(awk -F' ' '/^>/{print $1}' $files | sort | uniq | wc -l) -eq 1 ]]; 
 	else echo There are $(echo "$files" | wc -l) fasta files with $(awk -F' ' '/^>/{print $1}' $files | sort | uniq | wc -l) unique IDs. 
 	fi
 fi
+
 #Iterating on every file
+
 for file in $files; do
 	echo $'\n'----- $file ----    #Printing the name of the file
 	if [[ -h $file ]]; then 	#Checking wether it is a symlink or not.
@@ -27,27 +31,17 @@ for file in $files; do
 	else echo Symlink: No ;
 	fi 
 	if  grep -hv '>' $file | grep -q [VLKWHFIRMPSNQYDE] ; then #Checking wether it is a nucleotidic or aminoacidic sequence.
-		if [[ $(grep -c '>' $file) -eq 1 ]] ; then # Counting the number of sequences in the file.
-			echo Number of sequences: 1 
-			echo Type of sequence: amino acids
-			echo Total length of the sequence: $(grep -v ">" $file| tr -d '-' | tr -d ' ' | tr -d '\n' | wc -c) aa #Getting the total length of the sequences. 
-															       #Using the -d(delete) option of tr to remove gaps, newlines and spaces		
-		else    echo Number of sequences: $(grep -c '>' $file)
-			echo Type of sequences: amino acids
-			echo Total length of the sequences: $(grep -v ">" $file| tr -d '-' | tr -d ' ' | tr -d '\n' | wc -c) aa
-		fi
-	else
-		if [[ $(grep -c '>' $file) -eq 1 ]] ; then # Counting the number of sequences in the file.
-			echo Number of sequences: 1 
-			echo Type of sequence: nucleotides
-			echo Total length of the sequence: $(grep -v ">" $file| tr -d '-' | tr -d ' ' | tr -d '\n' | wc -c) pb
-		else
-			echo Number of sequences: $(grep -c '>' $file)
-			echo Type of sequences: nucleotides
-			echo Total length of the sequences: $(grep -v ">" $file| tr -d '-' | tr -d ' ' | tr -d '\n' | wc -c) pb
-		fi
+		echo Number of sequences:  $(grep -c '>' $file) #Counting the number of sequences of the file.
+		echo Sequence type: amino acids
+		echo Total sequence length: $(grep -v ">" $file| tr -d '-' | tr -d ' ' | tr -d '\n' | wc -c) aa #Getting the total length of the sequences. 
+	else											                #Using the -d(delete) option of tr to remove gaps, newlines and spaces		
+		echo Number of sequences: $(grep -c '>' $file)
+		echo Sequence type: nucleotides
+		echo Total sequence length: $(grep -v ">" $file| tr -d '-' | tr -d ' ' | tr -d '\n' | wc -c) pb
 	fi
+	
 	#Printing the contents of the file
+	
 	if [[ $(($nlines*2)) -ge $(cat $file | wc -l) ]] && [[ $nlines -ne 0 ]] ; then 
 		echo Content of the file:  
 		cat $file
