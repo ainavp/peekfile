@@ -26,16 +26,44 @@ for file in $files; do
 		echo Symlink : Yes; 
 	else echo Symlink: No ;
 	fi 
-	echo Number of sequences: $(grep -c '>' $file)
-	if  grep -hv '>' $file | grep -q [DQEHILKMFPSWYV] ; then 
-		if [[ $(grep -c '>' $file) -eq 1 ]]; then
-			echo Type of sequence: aminoacidic sequence
-		else echo Type of sequences: aminoacidic sequences
+	if  grep -hv '>' $file | grep -q [VLKWHFIRMPSNQYDE] ; then #Checking wether it is a nucleotidic or aminoacidic sequence.
+		if [[ $(grep -c '>' $file) -eq 1 ]] ; then # Counting the number of sequences in the file.
+			echo Number of sequences: 1 
+			echo Type of sequence: amino acids
+			echo Total length of the sequence: $(grep -v ">" $file| tr -d '-' | tr -d ' ' | tr -d '\n' | wc -c) aa #Getting the total length of the sequences. 
+															       #Using the -d(delete) option of tr to remove gaps, newlines and spaces		
+		else    echo Number of sequences: $(grep -c '>' $file)
+			echo Type of sequences: amino acids
+			echo Total length of the sequences: $(grep -v ">" $file| tr -d '-' | tr -d ' ' | tr -d '\n' | wc -c) aa
 		fi
-	else if [[ $(grep -c '>' $file) -eq 1 ]]; then
-				echo Type of sequence: nucleotidic sequence
-		else echo Type of sequences: nucleotidic sequences
+	else
+		if [[ $(grep -c '>' $file) -eq 1 ]] ; then # Counting the number of sequences in the file.
+			echo Number of sequences: 1 
+			echo Type of sequence: nucleotides
+			echo Total length of the sequence: $(grep -v ">" $file| tr -d '-' | tr -d ' ' | tr -d '\n' | wc -c) pb
+		else
+			echo Number of sequences: $(grep -c '>' $file)
+			echo Type of sequences: nucleotides
+			echo Total length of the sequences: $(grep -v ">" $file| tr -d '-' | tr -d ' ' | tr -d '\n' | wc -c) pb
 		fi
 	fi
+	#Printing the contents of the file
+	if [[ $(($nlines*2)) -ge $(cat $file | wc -l) ]] && [[ $nlines -ne 0 ]] ; then 
+		echo Content of the file:  
+		cat $file
+	elif [[ $nlines -eq 0 ]]; then 
+		continue
+	else 
+		if [[ $nlines -eq 1 ]]; then 
+			echo Warning: The file is too long to be fully displayed. Printing the first and the last line
+		else
+			echo Warning: the file is too long to be fully displayed. Printing the first and the last $nlines lines
+		fi
+
+		head -n $nlines $file
+		echo $'\n'...$'\n'
+		tail -n $nlines $file
+	fi
+	
 done 
 	
