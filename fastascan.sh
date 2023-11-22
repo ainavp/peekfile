@@ -27,12 +27,12 @@ fi
 
 for file in $files; do
 	echo $'\n'----- $file ----    #Printing the name of the file
-	if grep -q '>' $file; then 
-		if [[ -h $file ]]; then 	#Checking wether it is a symlink or not.
-			echo Symlink : Yes; 
-		else echo Symlink: No ;
-		fi 
-		if  grep -hv '>' $file | grep -q [VLKWHFIRMPSNQYDE] ; then #Checking wether it is a nucleotidic or aminoacidic sequence.
+	if [[ -h $file ]]; then 	#Checking wether it is a symlink or not.
+		echo Symlink : Yes
+	else echo Symlink: No 
+	fi 
+	if grep -q '>' $file; then #Checking if the file is not in binary code nor empty. 
+		if  grep -hv '>' $file | grep -q [VLKWHFIRMPSQYDE] ; then #Checking wether it is a nucleotidic or aminoacidic sequence.
 			echo Number of sequences:  $(grep -c '>' $file) #Counting the number of sequences of the file.
 			echo Sequence type: amino acids
 			echo Total sequence length: $(grep -v ">" $file| tr -d '-' | tr -d ' ' | tr -d '\n' | wc -c) aa #Getting the total length of the sequences. 
@@ -51,17 +51,21 @@ for file in $files; do
 			continue
 		else 
 			if [[ $nlines -eq 1 ]]; then 
-				echo Warning: The file is too long to be fully displayed. Printing the first and the last line
+				echo WARNING: The file is too long to be fully displayed. Printing the first and the last line
 			else
-				echo Warning: the file is too long to be fully displayed. Printing the first and the last $nlines lines
+				echo WARNING: the file is too long to be fully displayed. Printing the first and the last $nlines lines
 			fi
 
 			head -n $nlines $file
 			echo $'\n'...$'\n'
 			tail -n $nlines $file
 		fi
+	elif [[ ! -s $file ]]; then
+		echo WARNING: This file is empty.
+		echo Number of sequences: 0
+		echo Total sequence length : 0
 	else
-		echo "Warning: this file is in binary format. Its content can't be analized"
+		echo "WARNING: this file is in binary format. Its content can't be analized with this program"
 	fi
 done 
 	
