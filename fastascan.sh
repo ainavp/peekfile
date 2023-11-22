@@ -31,7 +31,7 @@ for file in $files; do
 		echo Symlink : Yes
 	else echo Symlink: No 
 	fi 
-	if grep -q '>' $file; then #Checking if the file is not in binary code nor empty. 
+	if grep -q '>' $file; then #Checking if the file is a non-binary file in fasta format and it is not empty. 
 		if  grep -hv '>' $file | grep -q [VLKWHFIRMPSQYDE] ; then #Checking wether it is a nucleotidic or aminoacidic sequence.
 			echo Number of sequences:  $(grep -c '>' $file) #Counting the number of sequences of the file.
 			echo Sequence type: amino acids
@@ -44,7 +44,7 @@ for file in $files; do
 		
 		#Printing the contents of the file
 		
-		if [[ $(($nlines*2)) -ge $(cat $file | wc -l) ]] && [[ $nlines -ne 0 ]] ; then 
+		if [[ $(($nlines*2)) -ge $(cat $file | wc -l) ]] && [[ $nlines -ne 0 ]] ; then  
 			echo Content of the file:  
 			cat $file
 		elif [[ $nlines -eq 0 ]]; then 
@@ -60,12 +60,13 @@ for file in $files; do
 			echo $'\n'...$'\n'
 			tail -n $nlines $file
 		fi
-	elif [[ ! -s $file ]]; then
+	elif [[ ! -s $file ]]; then #Printing a warning if the file is empty.
 		echo WARNING: This file is empty.
 		echo Number of sequences: 0
 		echo Total sequence length : 0
-	else
-		echo "WARNING: this file is in binary format. Its content can't be analized with this program"
+		
+	else                        # Printing a warning if the file is not a non-binary file in fasta format.
+		echo "WARNING: this file is not a non-binary file in fasta format. Its content can't be analized with this program"
 	fi
 done 
 	
